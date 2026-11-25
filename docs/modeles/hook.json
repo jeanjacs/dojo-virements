@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "A_COMPLETER",
+        "hooks": [
+          {"type": "command", "command": "A_COMPLETER"}
+        ]
+      }
+    ]
+  }
+}

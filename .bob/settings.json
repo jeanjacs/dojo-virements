@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {"hooks": [{"type": "command", "command": "java -jar dojo/target/dojo-tools.jar hook"}]}
+    ],
+    "PreToolUse": [
+      {"hooks": [{"type": "command", "command": "java -jar dojo/target/dojo-tools.jar hook"}]}
+    ]
+  }
+}
