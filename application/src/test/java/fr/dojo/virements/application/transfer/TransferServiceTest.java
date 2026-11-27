@@ -1,6 +1,7 @@
 package fr.dojo.virements.application.transfer;
 
 import fr.dojo.virements.application.transfer.exception.AccountNotFoundException;
+import fr.dojo.virements.application.transfer.exception.TransferNotFoundException;
 import fr.dojo.virements.application.transfer.support.InMemoryAccountRepository;
 import fr.dojo.virements.application.transfer.support.InMemoryTransferRepository;
 import fr.dojo.virements.application.transfer.support.InMemoryTransferUnitOfWork;
@@ -55,6 +56,28 @@ class TransferServiceTest {
         transfers.save(second);
 
         assertThat(service.getHistory()).containsExactly(first, second);
+    }
+
+    @Test
+    void returnsTheTransferMatchingTheRequestedIdentifier() {
+        var first = transfer("ACCOUNT-A", "ACCOUNT-B", "10.00");
+        var requested = transfer("ACCOUNT-B", "ACCOUNT-A", "5.00");
+        transfers.save(first);
+        transfers.save(requested);
+
+        assertThat(service.getTransfer(requested.id())).isEqualTo(requested);
+    }
+
+    @Test
+    void rejectsAnUnknownTransferIdentifierWithoutChangingState() {
+        var missing = TransferId.generate();
+
+        assertThatThrownBy(() -> service.getTransfer(missing))
+                .isInstanceOf(TransferNotFoundException.class)
+                .hasMessage("Transfer not found: " + missing.value())
+                .extracting("code", "label")
+                .containsExactly("err.fun.05", "Transfer lookup failed");
+        assertStateIsUnchanged();
     }
 
     @Test

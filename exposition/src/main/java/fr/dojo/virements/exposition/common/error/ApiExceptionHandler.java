@@ -1,6 +1,7 @@
 package fr.dojo.virements.exposition.common.error;
 
 import fr.dojo.virements.application.common.exception.TechnicalException;
+import fr.dojo.virements.application.transfer.exception.TransferNotFoundException;
 import fr.dojo.virements.domaine.common.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,12 @@ class ApiExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ApiError handleBusinessException(BusinessException exception) {
+        return toApiError(exception);
+    }
+
+    @ExceptionHandler(TransferNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ApiError handleTransferNotFound(TransferNotFoundException exception) {
         return toApiError(exception);
     }
 

@@ -1,6 +1,7 @@
 package fr.dojo.virements.exposition.api;
 
 import fr.dojo.virements.exposition.api.model.TransferRequest;
+import fr.dojo.virements.exposition.api.model.TransferResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
@@ -11,6 +12,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -46,7 +52,9 @@ class ApiEndpointsIntegrationTest {
                 .expectBody()
                 .jsonPath("$.info.title").isEqualTo("Transfers API")
                 .jsonPath("$['paths']['/api/v1/transfers']").exists()
-                .jsonPath("$['paths']['/api/v1/accounts/{accountNumber}']").exists();
+                .jsonPath("$['paths']['/api/v1/transfers/{id}'].get.responses['404']").exists()
+                .jsonPath("$['paths']['/api/v1/accounts/{accountNumber}']").exists()
+                .jsonPath("$.components.schemas.ApiError.properties.message").exists();
     }
 
     @Test
@@ -89,6 +97,47 @@ class ApiEndpointsIntegrationTest {
                 .expectBody()
                 .jsonPath("$.length()").isEqualTo(1)
                 .jsonPath("$[0].amount").isEqualTo(25.00);
+    }
+
+    @Test
+    void findsAnExistingTransferByIdentifier() {
+        var transfer = client.post().uri("/api/v1/transfers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new TransferRequest("COMPTE-A", "COMPTE-B", new BigDecimal("25.00")))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(TransferResponse.class)
+                .returnResult().getResponseBody();
+        assertNotNull(transfer);
+
+        var history = client.get().uri("/api/v1/transfers")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(TransferResponse[].class)
+                .returnResult().getResponseBody();
+        assertNotNull(history);
+        var historyEntry = Arrays.stream(history).filter(item -> item.id().equals(transfer.id())).findFirst().orElseThrow();
+
+        var detail = client.get().uri("/api/v1/transfers/{id}", transfer.id())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(TransferResponse.class)
+                .returnResult().getResponseBody();
+        assertEquals(historyEntry, detail);
+    }
+
+    @Test
+    void returnsTheCompatibleErrorContractWhenATransferIsMissing() {
+        var missing = UUID.randomUUID();
+        var message = "Transfer not found: " + missing;
+
+        client.get().uri("/api/v1/transfers/{id}", missing)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo("err.fun.05")
+                .jsonPath("$.message").isEqualTo(message)
+                .jsonPath("$.description").isEqualTo("Transfer lookup failed. " + message);
     }
 
     @Test

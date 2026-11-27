@@ -2,6 +2,7 @@ package fr.dojo.virements.exposition.api;
 
 import fr.dojo.virements.application.transfer.port.in.TransferUseCase;
 import fr.dojo.virements.domaine.transfer.exception.InvalidTransferException;
+import fr.dojo.virements.domaine.transfer.valueobject.TransferId;
 import fr.dojo.virements.exposition.api.model.AccountResponse;
 import fr.dojo.virements.exposition.api.model.TransferRequest;
 import fr.dojo.virements.exposition.api.model.TransferResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.base-path:/api/v1}")
@@ -55,6 +57,20 @@ public class TransferController {
         return transfers.getHistory().stream()
                 .map(TransferResponse::from)
                 .toList();
+    }
+
+    @Operation(summary = "Get a transfer by its identifier")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Transfer found"),
+            @ApiResponse(responseCode = "400", description = "Malformed transfer identifier"),
+            @ApiResponse(responseCode = "404", description = "Unknown transfer",
+                    content = @Content(schema = @Schema(implementation = ApiError.class))),
+            @ApiResponse(responseCode = "500", description = "Transfer lookup failed",
+                    content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
+    @GetMapping("/transfers/{id}")
+    public TransferResponse getTransfer(@PathVariable UUID id) {
+        return TransferResponse.from(transfers.getTransfer(new TransferId(id)));
     }
 
     @Operation(summary = "Get an account balance")

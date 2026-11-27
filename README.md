@@ -9,6 +9,7 @@ La base H2 en mémoire est initialisée au démarrage.
 | --- | --- |
 | `POST /api/v1/transfers` | Effectuer un virement interne à partir d’un objet JSON |
 | `GET /api/v1/transfers` | Consulter l’historique local |
+| `GET /api/v1/transfers/{id}` | Consulter un virement par UUID |
 | `GET /api/v1/accounts/{accountNumber}` | Consulter le solde d’un compte |
 
 L'accueil `/` redirige vers Swagger UI. Le contrat OpenAPI est également
@@ -62,7 +63,7 @@ Le domaine définit les codes et les libellés dans `AccountErrors` et
 
 Les codes fonctionnels sont stables : `err.fun.01` pour un compte invalide,
 `err.fun.02` pour un virement invalide, `err.fun.03` pour un solde insuffisant
-et `err.fun.04` pour un compte introuvable. Une erreur technique est exposée
+`err.fun.04` pour un compte introuvable et `err.fun.05` pour un virement introuvable. Le virement introuvable est renvoyé en HTTP 404. Une erreur technique est exposée
 sous le code générique `err.tech.01`.
 
 ## Tester et lancer l’application

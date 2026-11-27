@@ -71,6 +71,17 @@ class JpaAdaptersIntegrationTest {
     }
 
     @Test
+    void transferAdapterFindsByBusinessIdentifier() {
+        var first = transfer("10.00");
+        var requested = transfer("20.00");
+        transfers.save(first);
+        transfers.save(requested);
+
+        assertThat(transfers.find(requested.id())).contains(requested);
+        assertThat(transfers.find(TransferId.generate())).isEmpty();
+    }
+
+    @Test
     void unitOfWorkCommitsAccountsAndTransferTogether() {
         accounts.save(account("SOURCE", "100.00"));
         accounts.save(account("DESTINATION", "50.00"));

@@ -1,6 +1,7 @@
 package fr.dojo.virements.application.transfer;
 
 import fr.dojo.virements.application.transfer.exception.AccountNotFoundException;
+import fr.dojo.virements.application.transfer.exception.TransferNotFoundException;
 import fr.dojo.virements.application.transfer.port.in.TransferUseCase;
 import fr.dojo.virements.application.transfer.port.out.AccountRepository;
 import fr.dojo.virements.application.transfer.port.out.TransferRepository;
@@ -40,6 +41,11 @@ public class TransferService implements TransferUseCase {
                 destinationAccount.credit(transfer.amount().value()),
                 transfer);
         return transfer;
+    }
+
+    @Override
+    public Transfer getTransfer(TransferId id) {
+        return transfers.find(id).orElseThrow(() -> new TransferNotFoundException(id));
     }
 
     @Override
