@@ -3,10 +3,8 @@ package fr.dojo.virements.exposition.architecture;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
-import fr.dojo.virements.application.transfer.TransferService;
 import fr.dojo.virements.application.transfer.port.in.TransferUseCase;
 import fr.dojo.virements.application.transfer.port.out.TransferRepository;
-import fr.dojo.virements.domaine.transfer.valueobject.TransferId;
 import fr.dojo.virements.exposition.api.TransferController;
 import fr.dojo.virements.infra.jpa.transfer.JpaTransferRepository;
 import org.junit.jupiter.api.Test;
@@ -39,10 +37,6 @@ class TransferLookupArchitectureTest {
         noClasses().that().resideInAPackage(BASE + ".application..")
                 .should().dependOnClassesThat().resideInAnyPackage(BASE + ".infra..", BASE + ".exposition..")
                 .check(CODE);
-        assertTrue(CODE.get(TransferService.class).getMethod("getTransfer", TransferId.class)
-                .getMethodCallsFromSelf().stream()
-                .anyMatch(call -> call.getTargetOwner().isEquivalentTo(TransferRepository.class)
-                        && call.getTarget().getName().equals("find")));
     }
 
     @Test

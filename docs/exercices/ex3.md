@@ -8,7 +8,7 @@
 
 > **Point de départ de l’exercice** · L’assertion ArchUnit est retirée volontairement. Le comportement de l’API reste intact. La suite de tests ne vérifie plus que la consultation appelle `TransferRepository.find`. Votre tâche consiste à rétablir ce contrôle.
 
-**ℹ️ Préparation des branches** · Lors de la génération de `exercises/part-3`, un commit retirera l’assertion du test de départ. La transmission du résultat Maven par le hook reste à valider dans Bob.
+**ℹ️ Information** · L’évaluation finale vérifie que votre test échoue si l’appel au port est absent.
 
 ## 1. Préparer le projet
 
