@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 final class Measurement {
     private static final Pattern START = Pattern.compile(
-            "\\[dojo (verification|ex[123] (?:avant|apres))\\]", Pattern.CASE_INSENSITIVE);
+            "\\[dojo (verification|ex[12] (?:avant|apres)|ex3(?: (?:avant|apres))?)\\]", Pattern.CASE_INSENSITIVE);
     private static final Pattern END = Pattern.compile("\\[dojo fin\\](?:\\s|$)", Pattern.CASE_INSENSITIVE);
     private final Path database;
 

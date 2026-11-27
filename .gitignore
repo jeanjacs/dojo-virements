@@ -1,10 +1,5 @@
 target/
 /.dojo-runtime/
-__pycache__/
 .DS_Store
 .idea/
-Archive.zip
-
-/.dojo-build-presentation/
 /deliverables/
-/docs/supports/archives/

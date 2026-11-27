@@ -37,10 +37,8 @@ Le projet est organisé en modules Maven selon une architecture hexagonale :
 | `domaine` | Racines d’agrégat `Account` et `Transfer`, et invariants métier |
 | `application` | Cas d'utilisation, repositories et unit of work |
 | `infra-jpa` | Adaptateurs de persistance JPA/H2 |
-| `exposition` | API REST, bootstrap Spring Boot, initialisation H2 et Swagger |
-
-Un module `infra-http` ne sera ajouté que si l'application doit configurer des
-clients HTTP pour appeler des services externes.
+| `exposition` | API REST, démarrage Spring Boot, initialisation H2 et Swagger |
+| `dojo` | Collecte des tentatives et contrôles de référence |
 
 `Account` et `Transfer` sont des racines d’agrégat identifiées respectivement
 par le numéro de compte et l’UUID du virement. Le cas d’utilisation les orchestre,
@@ -67,79 +65,58 @@ Les codes fonctionnels sont stables : `err.fun.01` pour un compte invalide,
 et `err.fun.04` pour un compte introuvable. Une erreur technique est exposée
 sous le code générique `err.tech.01`.
 
-Pour construire et tester l'ensemble :
+## Tester et lancer l’application
+
+Depuis le dossier qui contient le `pom.xml` parent, lancez les tests avec Maven.
 
 ```sh
-./mvnw test
+mvn test
 ```
 
-Pour produire puis lancer l'application :
+Pour compiler le projet, générer les JAR et lancer l’application, exécutez
 
 ```sh
-./mvnw package
+mvn clean install
 java -jar exposition/target/exposition-1.0.jar
 ```
 
-## Pour les participants
+## Ouvrir le projet dans Bob
 
-Les supports de présentation et le guide participant sont disponibles dans
-le dossier docs/supports/ du dépôt. Votre relais vous les distribue avec
-les copies préparées.
+Ouvrez dans Bob le dossier du projet Virements qui contient le `pom.xml` parent.
+Le contexte du projet figure dans `AGENTS.md`. Les règles, les hooks de collecte
+et le skill d’évaluation sont fournis dans `.bob/`. Vous pouvez suivre les fiches
+avec ces fichiers, sans lancer `/init`.
 
-Ouvrez dans Bob la copie que votre relais vous indique. Les exercices et
-l'évaluation se pilotent par messages dans le chat.
-Les copies sont des bases de travail. Les modèles et les tests de référence
-accompagnent les squelettes. Vous créez les ressources propres à l'exercice
-avec Bob à partir du pas-à-pas remis séparément.
-Si vous travaillez directement à la racine du dépôt, préparez le hook avant
-d'ouvrir Bob avec `./mvnw -pl dojo -am package`. Les copies préparées contiennent
-déjà le JAR.
+Dans le terminal de Bob, vérifiez que `java -version` et `mvn -v` affichent
+Java 21. La commande `mvn clean install` utilise le Maven installé sur votre
+poste et génère `dojo/target/dojo-tools.jar` pour la collecte.
 
-1. Commencez par envoyer le message ci-dessous dans la copie de vérification.
+### Activer les hooks de collecte
 
-   ```text
-   [dojo verification]
-   Ouvre pom.xml avec ton outil de lecture et indique la version de Spring Boot.
-   ```
+1. Ouvrez **Bob Settings**, puis l’onglet **Hooks**.
+2. Dans les hooks du projet, repérez `UserPromptSubmit` et `PreToolUse`.
+   Les deux exécutent `java -jar dojo/target/dojo-tools.jar hook`.
+3. Activez chaque entrée si elle est désactivée. Si les entrées sont absentes,
+   vérifiez que le dossier ouvert dans Bob contient le `pom.xml` parent et
+   `.bob/settings.json`.
 
-2. Envoyez `[dojo fin] Évalue cette tentative avec le skill dojo-evaluation.`
-   Le rapport doit montrer une lecture observée et un contrôle réussi.
-3. Suivez les fiches [Cadrer](docs/exercices/ex1.md), [Rules et ADR](docs/exercices/ex2.md)
-   et [Skill et hook](docs/exercices/ex3.md). Ouvrez la copie correspondant à chaque passage.
-   Les rapports restent disponibles dans chaque copie sous `.dojo-runtime/`.
-   Vous pouvez déposer leurs deux JSON dans un même chat et demander à Bob de les comparer.
+Si le hook utilise une autre version de Java, envoyez « Prépare Java pour le dojo »
+à Bob avant de lancer une tentative.
 
-## Pour le relais
+[Documentation IBM Bob sur les hooks](https://bob.ibm.com/fr/docs/ide/configuration/lifecycle-hooks)
 
-Prévoyez Bob IDE avec les hooks du dépôt autorisés et un JDK 21 accessible
-via `java`. Vérifiez aussi que Maven Central ou le miroir
-interne est accessible au Maven Wrapper. Les actions de Bob suivent les
-paramètres de permissions de l'équipe. Validez ces prérequis et préchauffez le
-cache Maven avant la séance.
+## Exercices
 
-Les branches `exercises/part-1`, `exercises/part-2` et `exercises/part-3`
-conservent le code de départ. Pour un exercice, générez les deux copies depuis
-la branche correspondante. Par exemple, depuis un espace de travail propre :
+Ouvrez la fiche de votre exercice pour suivre les commandes et les prompts.
 
-```sh
-git switch exercises/part-1
-./mvnw package
-java -jar dojo/target/dojo-tools.jar prepare-copies ../binome-01-part-1
-```
+| Fiche | Branche |
+| --- | --- |
+| [Exercice 1 · Cadrer un prompt pour guider Bob](docs/exercices/ex1.md) | `exercises/part-1` |
+| [Exercice 2 · Créer une règle de nommage et guider Bob avec un ADR](docs/exercices/ex2.md) | `exercises/part-2` |
+| [Exercice 3 · Mettre en place un hook et un skill pour diagnostiquer un test](docs/exercices/ex3.md) | `exercises/part-3` |
 
-Ouvrez ensuite `ex1-avant` et `ex1-apres` dans le dossier généré. Le même
-procédé s'applique à chaque numéro d'exercice.
+Dans Bob, envoyez le marqueur de début fourni dans votre fiche. Envoyez
+`[dojo fin]` dans la même conversation, avec la demande d’évaluation indiquée
+dans la fiche. Bob vous indique ensuite le chemin du rapport.
 
-Sous Windows, utilisez `mvnw.cmd` à la place de `./mvnw`.
-
-Le hook Java écoute `UserPromptSubmit` pour les marqueurs et `PreToolUse`
-pour les appels. Il conserve les identifiants, les noms d'outils et les
-horodatages dans `.dojo-runtime/measure.sqlite3`. Après la clôture, le skill
-utilise `java -jar dojo/target/dojo-tools.jar evaluate NUMERO` pour générer le rapport.
-
-Le pilote dans Bob IDE doit confirmer la lecture réelle en phase de vérification,
-la clôture avant le déclenchement du skill et l'absence d'appels d'évaluation
-dans les compteurs. Le contrôle de vérification est distinct des validations
-métier à implémenter pendant les exercices.
-
-Voir le [déroulé d'animation](docs/animation.md).
+Le guide d’animation et le diaporama sont disponibles séparément du projet.

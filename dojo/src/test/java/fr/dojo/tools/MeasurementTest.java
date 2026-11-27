@@ -20,11 +20,11 @@ class MeasurementTest {
     @Test
     void capturesOnlyMetadataBetweenMarkersWithSessionIsolationAndDeduplication() throws Exception {
         var measurement = new Measurement(runtime);
-        measurePrompt(measurement, "alice", "[dojo ex3 avant] sur la même ligne");
+        measurePrompt(measurement, "alice", "[dojo ex3] sur la même ligne");
         measureTool(measurement, "alice", "inactive");
         assertFalse(Files.exists(runtime.resolve("measure.sqlite3")));
 
-        measurePrompt(measurement, "alice", "[dojo ex3 avant]\nTravail");
+        measurePrompt(measurement, "alice", "[dojo ex3]\nTravail");
         measurePrompt(measurement, "alice", "[dojo ex2 avant]\nNouvel envoi");
         measureTool(measurement, "alice", "tool-a");
         measureTool(measurement, "alice", "tool-a");
@@ -36,7 +36,7 @@ class MeasurementTest {
         measurePrompt(measurement, "alice", "[dojo ex3 apres]");
         measureTool(measurement, "alice", "tool-a");
         assertTrue(measurePrompt(measurement, "alice", "[dojo fin]").contains("tentative 2"));
-        assertEquals("ex3 avant", measurement.closedAttempt(1).label());
+        assertEquals("ex3", measurement.closedAttempt(1).label());
         assertEquals("ex3 apres", measurement.closedAttempt(2).label());
         assertEquals(Map.of("read_file", 1), measurement.closedAttempt(1).calls());
         assertEquals(Map.of("read_file", 1), measurement.closedAttempt(2).calls());
