@@ -50,13 +50,13 @@ sont exposées en HTTP 400. Les adaptateurs convertissent leurs erreurs de
 persistance en `TechnicalException`, exposées en HTTP 500 sans divulguer leur cause.
 
 Le domaine définit les codes et les libellés dans `AccountErrors` et
-`TransferErrors`, au sein de leurs agrégats respectifs. Au départ de l’exercice 1,
-l’API renvoie le code et le message du refus.
+`TransferErrors`, au sein de leurs agrégats respectifs. L’API renvoie le code, le message et une description du refus.
 
 ```json
 {
   "code": "err.fun.02",
-  "message": "The amount must be strictly positive."
+  "message": "The amount must be strictly positive.",
+  "description": "Invalid transfer. The amount must be strictly positive."
 }
 ```
 

@@ -16,13 +16,17 @@ class ApiExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     ApiError handleBusinessException(BusinessException exception) {
-        return new ApiError(exception.getCode(), exception.getMessage());
+        return toApiError(exception);
     }
 
     @ExceptionHandler(TechnicalException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ApiError handleTechnicalException(TechnicalException exception) {
         LOGGER.error("A technical error occurred while processing the request.", exception);
-        return new ApiError(exception.getCode(), exception.getDescription());
+        return ApiError.withLabel(exception.getCode(), "Request could not be completed", exception.getDescription());
+    }
+
+    private ApiError toApiError(BusinessException exception) {
+        return ApiError.withLabel(exception.getCode(), exception.getLabel(), exception.getMessage());
     }
 }

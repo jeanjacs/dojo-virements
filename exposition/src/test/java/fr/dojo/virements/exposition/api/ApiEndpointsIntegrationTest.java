@@ -100,6 +100,7 @@ class ApiEndpointsIntegrationTest {
                 .expectStatus().isBadRequest()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo("err.fun.04")
-                .jsonPath("$.message").isEqualTo("Account not found: UNKNOWN");
+                .jsonPath("$.message").isEqualTo("Account not found: UNKNOWN")
+                .jsonPath("$.description").isEqualTo("Request rejected. Account not found: UNKNOWN");
     }
 }
